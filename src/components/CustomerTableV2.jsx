@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { 
-  MoreHorizontal, Mail, Phone, MapPin, Tag, Search, X, 
-  Calendar, ShieldCheck, Users, UserCheck, UserMinus,
-  FileSpreadsheet
+  MoreHorizontal, Tag, Search, 
+  FileSpreadsheet, Users, UserCheck, UserMinus 
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
 
 const DATA = [
@@ -14,7 +13,6 @@ const DATA = [
   { id: 4, name: "Luca Bianchi", email: "l.b@agency.it", status: "Offline", phone: "+39 02 1122", type: "Standard", color: "bg-slate-400", location: "Torino", joinDate: "15 Mar 2024" },
 ];
 
-// --- VARIANTI ANIMAZIONE GALLEGGIAMENTO ---
 const floatingVariants = {
   animate: (i = 0) => ({
     y: [0, -10, 0],
@@ -22,20 +20,13 @@ const floatingVariants = {
       duration: 6,
       repeat: Infinity,
       ease: "easeInOut",
-      delay: i * 0.2, // Effetto onda tra le righe
+      delay: i * 0.2,
     }
   })
 };
 
-// --- SOTTO-COMPONENTI ---
-
 const Counter = ({ value }) => (
-  <motion.span
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    key={value}
-    className="text-2xl font-black text-sky-950"
-  >
+  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={value} className="text-2xl font-black text-sky-950">
     {value}
   </motion.span>
 );
@@ -48,15 +39,9 @@ const CircularProgress = ({ percentage }) => {
   return (
     <div className="relative flex items-center justify-center">
       <svg className="w-16 h-16 transform -rotate-90">
-        <circle
-          cx="32" cy="32" r={radius}
-          stroke="currentColor" strokeWidth="8"
-          fill="transparent" className="text-sky-100/50"
-        />
+        <circle cx="32" cy="32" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" className="text-sky-100/50" />
         <motion.circle
-          cx="32" cy="32" r={radius}
-          stroke="currentColor" strokeWidth="8"
-          fill="transparent"
+          cx="32" cy="32" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
@@ -70,10 +55,9 @@ const CircularProgress = ({ percentage }) => {
   );
 };
 
-export default function CustomerTableV2() {
+export default function CustomerTableV2({ onSelectCustomer, selectedId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
@@ -93,7 +77,8 @@ export default function CustomerTableV2() {
 
   const activePercentage = stats.total > 0 ? (stats.active / stats.total) * 100 : 0;
 
-  const exportToExcel = () => {
+  const exportToExcel = (e) => {
+    e.stopPropagation();
     const dataToExport = filteredData.map(user => ({
       ID: `#00${user.id}`, Nome: user.name, Email: user.email, Stato: user.status,
       Telefono: user.phone, Segmento: user.type, Sede: user.location, 'Data Iscrizione': user.joinDate
@@ -105,13 +90,8 @@ export default function CustomerTableV2() {
   };
 
   const SkeletonRow = () => (
-    <tr className="relative overflow-hidden">
-      <td className="px-8 py-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-sky-900/10 rounded-2xl relative overflow-hidden animate-pulse" />
-          <div className="h-4 w-32 bg-sky-900/15 rounded animate-pulse" />
-        </div>
-      </td>
+    <tr>
+      <td className="px-8 py-6"><div className="flex items-center gap-4"><div className="w-12 h-12 bg-sky-900/10 rounded-2xl animate-pulse" /><div className="h-4 w-32 bg-sky-900/15 rounded animate-pulse" /></div></td>
       <td className="px-8 py-6"><div className="h-4 w-40 bg-sky-900/10 rounded-lg animate-pulse" /></td>
       <td className="px-8 py-6"><div className="h-6 w-20 bg-sky-900/10 rounded-lg animate-pulse" /></td>
       <td className="px-8 py-6"><div className="h-4 w-24 bg-sky-900/10 rounded-full animate-pulse" /></td>
@@ -120,8 +100,7 @@ export default function CustomerTableV2() {
   );
 
   return (
-    <div className="relative min-h-screen bg-linear-to-br from-sky-50 to-white pb-20">
-      
+    <div className="relative w-full">
       {/* STATS SECTION */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
         {[
@@ -129,13 +108,7 @@ export default function CustomerTableV2() {
           { label: "Attivi Ora", val: stats.active, icon: UserCheck, color: "text-emerald-600", bg: "bg-emerald-500/10" },
           { label: "In Attesa", val: stats.pending, icon: UserMinus, color: "text-amber-600", bg: "bg-amber-500/10" }
         ].map((stat, i) => (
-          <motion.div
-            key={i}
-            variants={floatingVariants}
-            animate="animate"
-            custom={i}
-            className="bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-white flex items-center gap-5 shadow-sm"
-          >
+          <motion.div key={i} variants={floatingVariants} animate="animate" custom={i} className="bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-white flex items-center gap-5 shadow-sm">
             <div className={`p-4 ${stat.bg} ${stat.color} rounded-2xl`}><stat.icon size={24} /></div>
             <div>
               <p className="text-[10px] font-black text-sky-900/40 uppercase tracking-widest">{stat.label}</p>
@@ -143,13 +116,7 @@ export default function CustomerTableV2() {
             </div>
           </motion.div>
         ))}
-
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          custom={3}
-          className="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-white flex items-center justify-between shadow-sm"
-        >
+        <motion.div variants={floatingVariants} animate="animate" custom={3} className="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-white flex items-center justify-between shadow-sm">
           <div>
             <p className="text-[10px] font-black text-sky-900/40 uppercase tracking-widest">Activity Rate</p>
             <p className="text-xs font-bold text-sky-950 mt-1">Status Attivo</p>
@@ -159,7 +126,7 @@ export default function CustomerTableV2() {
       </div>
 
       {/* SEARCH BAR & EXPORT */}
-      <div className="p-6 border-b border-white/20 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="relative w-full max-w-md group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-900/40 group-focus-within:text-sky-600 transition-colors" size={20} />
           <input 
@@ -168,7 +135,6 @@ export default function CustomerTableV2() {
             className="w-full pl-12 pr-4 py-3 bg-white/30 backdrop-blur-lg border border-white/50 rounded-2xl outline-none focus:ring-2 focus:ring-sky-400/50 transition-all text-sky-950 font-medium"
           />
         </div>
-
         <motion.button 
           whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}
           onClick={exportToExcel} disabled={isLoading}
@@ -179,10 +145,10 @@ export default function CustomerTableV2() {
       </div>
 
       {/* TABLE */}
-      <div className="overflow-x-auto px-4">
+      <div className="overflow-x-auto px-4 pb-10">
         <table className="w-full text-left border-separate border-spacing-y-4">
           <thead>
-            <tr className="bg-transparent">
+            <tr>
               <th className="px-8 py-2 text-[10px] font-black text-sky-900/40 uppercase tracking-[0.2em]">Profilo</th>
               <th className="px-8 py-2 text-[10px] font-black text-sky-900/40 uppercase tracking-[0.2em]">Contatti</th>
               <th className="px-8 py-2 text-[10px] font-black text-sky-900/40 uppercase tracking-[0.2em]">Segmento</th>
@@ -196,13 +162,10 @@ export default function CustomerTableV2() {
             ) : (
               filteredData.map((user, i) => (
                 <motion.tr 
-                  key={user.id}
-                  variants={floatingVariants}
-                  animate="animate"
-                  custom={i}
-                  whileHover={{ scale: 1.01, zIndex: 10 }}
-                  onClick={() => setSelectedCustomer(user)}
-                  className="group bg-white/40 backdrop-blur-md border border-white shadow-sm cursor-pointer relative overflow-visible"
+                  key={user.id} variants={floatingVariants} animate="animate" custom={i}
+                  whileHover={{ scale: 1.01, backgroundColor: "rgba(255, 255, 255, 0.6)" }}
+                  onClick={() => onSelectCustomer(user)}
+                  className={`group bg-white/40 backdrop-blur-md border shadow-sm cursor-pointer transition-all ${selectedId === user.id ? 'ring-2 ring-sky-500/50 border-sky-500/50 bg-white/80' : 'border-white'}`}
                 >
                   <td className="px-8 py-5 first:rounded-l-4xl">
                     <div className="flex items-center gap-4">
@@ -241,68 +204,6 @@ export default function CustomerTableV2() {
           </tbody>
         </table>
       </div>
-
-      {/* DETTAGLI SIDE-OVER */}
-      <AnimatePresence>
-        {selectedCustomer && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setSelectedCustomer(null)}
-              className="fixed inset-0 bg-sky-900/20 backdrop-blur-sm z-100"
-            />
-            <motion.div 
-              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 h-full w-full max-w-md bg-white/90 backdrop-blur-3xl shadow-[-20px_0_50px_rgba(0,0,0,0.1)] z-101 p-8 border-l border-white/50 overflow-y-auto"
-            >
-              <button onClick={() => setSelectedCustomer(null)} className="absolute top-6 right-6 p-2 hover:bg-sky-100 rounded-full text-sky-900 transition-colors"><X size={24} /></button>
-
-              <div className="mt-12 space-y-8">
-                <div className="flex flex-col items-center text-center">
-                  <div className={`w-24 h-24 ${selectedCustomer.color} rounded-[2.5rem] flex items-center justify-center text-3xl text-white font-black mb-4 shadow-2xl`}>
-                    {selectedCustomer.name.charAt(0)}
-                  </div>
-                  <h2 className="text-2xl font-black text-sky-950">{selectedCustomer.name}</h2>
-                  <p className="text-sky-600 font-bold uppercase text-xs tracking-widest">{selectedCustomer.type}</p>
-                </div>
-
-                <div className="space-y-6 bg-white/60 p-6 rounded-[2.5rem] border border-white shadow-sm">
-                  <h3 className="text-[10px] font-black text-sky-900/40 uppercase tracking-widest">Contatti</h3>
-                  <div className="space-y-5">
-                    {[
-                      { icon: Mail, label: "Email", value: selectedCustomer.email },
-                      { icon: Phone, label: "Telefono", value: selectedCustomer.phone },
-                      { icon: MapPin, label: "Sede", value: selectedCustomer.location }
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4">
-                        <div className="p-3 bg-sky-50 rounded-2xl text-sky-500"><item.icon size={18} /></div>
-                        <div>
-                          <p className="text-[9px] font-bold text-sky-900/30 uppercase">{item.label}</p>
-                          <p className="font-bold text-sky-950 text-sm">{item.value}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-white/40 rounded-3xl border border-white flex flex-col items-center justify-center gap-1">
-                    <Calendar className="text-sky-400" size={20} /><p className="text-[9px] font-black text-sky-900/40 uppercase">Membro dal</p><p className="text-xs font-bold text-sky-950">{selectedCustomer.joinDate}</p>
-                  </div>
-                  <div className="p-4 bg-white/40 rounded-3xl border border-white flex flex-col items-center justify-center gap-1">
-                    <ShieldCheck className="text-emerald-400" size={20} /><p className="text-[9px] font-black text-sky-900/40 uppercase">Status</p><p className="text-xs font-bold text-sky-950">Certificato</p>
-                  </div>
-                </div>
-
-                <button className="w-full py-4 bg-sky-600 text-white rounded-3xl font-black text-sm shadow-xl shadow-sky-600/20 hover:bg-sky-500 hover:-translate-y-1 transition-all active:scale-95 uppercase tracking-widest">
-                  Aggiorna Anagrafica
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

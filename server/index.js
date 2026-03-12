@@ -11,6 +11,7 @@ let cards = [
   { id: 1, title: "Gangnam Style", desc: "L'energia vibrante del distretto tecnologico." },
   { id: 2, title: "Hanon Breeze", desc: "La calma delle architetture tradizionali." },
   { id: 3, title: "Digital Soul", desc: "L'anima tech delle nuove startup di Seoul." },
+  { id: 4, title: "Calendar Page", desc: "Ecco un calendario per gli appuntamenti." },
 ];
 
 app.get('/api/cards', (req, res) => {

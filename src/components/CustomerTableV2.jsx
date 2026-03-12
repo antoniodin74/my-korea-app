@@ -17,9 +17,9 @@ const DATA = [
 // --- VARIANTI ANIMAZIONE GALLEGGIAMENTO ---
 const floatingVariants = {
   animate: (i = 0) => ({
-    y: [0, -6, 0],
+    y: [0, -10, 0],
     transition: {
-      duration: 4,
+      duration: 6,
       repeat: Infinity,
       ease: "easeInOut",
       delay: i * 0.2, // Effetto onda tra le righe
